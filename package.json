@@ -7,9 +7,12 @@
   },
   "scripts": {
     "dev": "vinext dev",
+    "dev:pages": "vite --config vite.pages.config.ts",
     "build": "vinext build",
+    "build:pages": "vite build --config vite.pages.config.ts",
     "start": "vinext start",
-    "test": "npm run build && node --test tests/pixelate.test.ts tests/rendered-html.test.mjs",
+    "preview:pages": "vite preview --config vite.pages.config.ts",
+    "test": "npm run build && npm run build:pages && node --test tests/pixelate.test.ts tests/rendered-html.test.mjs tests/pages-build.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {

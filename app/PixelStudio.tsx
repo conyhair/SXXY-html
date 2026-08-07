@@ -293,7 +293,7 @@ export function PixelStudio() {
     <main className="site-shell">
       <header className="site-header">
         <a className="brand" href="#top" aria-label="巡展像素小工具首页">
-          <img className="brand-logo" src="/tour-pixel-logo.png" alt="" aria-hidden="true" />
+          <img className="brand-logo" src="./tour-pixel-logo.png" alt="" aria-hidden="true" />
           <span>巡展像素小工具</span>
         </a>
         <div className="privacy-pill"><span aria-hidden="true">●</span> 图片只在你的浏览器中处理</div>
@@ -306,10 +306,10 @@ export function PixelStudio() {
         </div>
         <div className="hero-side">
           <div className="mascot-card">
-            <img className="mascot-stars" src="/angelina/stars.png" alt="" aria-hidden="true" />
+            <img className="mascot-stars" src="./angelina/stars.png" alt="" aria-hidden="true" />
             <picture>
-              <source media="(prefers-reduced-motion: reduce)" srcSet="/angelina/camera.png" />
-              <img className="mascot" src="/angelina/camera.gif" alt="Angelina 拿着相机记录灵感" />
+              <source media="(prefers-reduced-motion: reduce)" srcSet="./angelina/camera.png" />
+              <img className="mascot" src="./angelina/camera.gif" alt="Angelina 拿着相机记录灵感" />
             </picture>
             <span>把灵感拍成像素 ✦</span>
           </div>
@@ -334,7 +334,7 @@ export function PixelStudio() {
               onDragLeave={() => setDraggingOver(false)}
               onDrop={onDrop}
             >
-              <img className="dropzone-stars" src="/angelina/stars.png" alt="" aria-hidden="true" />
+              <img className="dropzone-stars" src="./angelina/stars.png" alt="" aria-hidden="true" />
               <div className="upload-art" aria-hidden="true"><span>24</span><b>×</b><span>24</span></div>
               <h3>从一张图片开始</h3>
               <p>拖放、粘贴，或者从设备中选择图片</p>
@@ -449,7 +449,7 @@ export function PixelStudio() {
             <p><strong>网站内使用的图片版权属于上海鹰角网络科技有限公司及其关联公司。</strong></p>
           </div>
         </div>
-        <img src="/angelina/paper-plane.png" alt="Angelina 乘纸飞机出发" />
+        <img src="./angelina/paper-plane.png" alt="Angelina 乘纸飞机出发" />
       </footer>
     </main>
   );
