@@ -13,9 +13,11 @@ import {
 } from "react";
 import {
   type CropState,
+  type PaletteSize,
   type PixelationResult,
-  MAX_COLORS,
+  DEFAULT_MAX_COLORS,
   OUTPUT_SIZE,
+  PALETTE_SIZES,
   clampCrop,
   cropSize,
   initialCrop,
@@ -54,6 +56,7 @@ export function PixelStudio() {
   const [source, setSource] = useState<SourceImage | null>(null);
   const [crop, setCrop] = useState<CropState>({ centerX: 0, centerY: 0, zoom: 1 });
   const [background, setBackground] = useState("#ffffff");
+  const [colorCount, setColorCount] = useState<PaletteSize>(DEFAULT_MAX_COLORS);
   const [result, setResult] = useState<PixelationResult | null>(null);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("等待图片");
@@ -134,7 +137,7 @@ export function PixelStudio() {
       try {
         const nextResult = renderPixelation(source.element, source.width, source.height, crop, {
           size: OUTPUT_SIZE,
-          maxColors: MAX_COLORS,
+          maxColors: colorCount,
           backgroundColor: background,
         });
         setResult(nextResult);
@@ -147,7 +150,7 @@ export function PixelStudio() {
     return () => {
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-  }, [background, crop, source]);
+  }, [background, colorCount, crop, source]);
 
   useEffect(() => {
     const canvas = editorRef.current;
@@ -301,7 +304,7 @@ export function PixelStudio() {
           <p className="eyebrow">PIXEL ART MAKER · 24 × 24</p>
           <h1>把一张照片，<br />压进 <em>576</em> 个像素。</h1>
         </div>
-        <p className="hero-copy">裁好构图，挑一个底色。我们会从你的图片中提取 16 种代表色，生成干净、可下载的 24×24 像素画。</p>
+        <p className="hero-copy">裁好构图，挑一个底色和颜色数量。我们会从你的图片中提取最多 {colorCount} 种代表色，生成干净、可下载的 24×24 像素画。</p>
       </section>
 
       <section className="studio" aria-label="像素画生成工作台">
@@ -369,6 +372,16 @@ export function PixelStudio() {
                   </span>
                   <code>{background.toUpperCase()}</code>
                 </label>
+                <label className="palette-control">
+                  <span>颜色数</span>
+                  <select
+                    value={colorCount}
+                    aria-label="选择像素画最大颜色数"
+                    onChange={(event) => setColorCount(Number(event.target.value) as PaletteSize)}
+                  >
+                    {PALETTE_SIZES.map((size) => <option key={size} value={size}>{size} 色</option>)}
+                  </select>
+                </label>
               </div>
               <p className="editor-help">拖动调整构图 · 滚轮或双指缩放 · 方向键微调 · 按 0 复位</p>
             </>
@@ -391,13 +404,17 @@ export function PixelStudio() {
           </div>
           <div className="result-meta">
             <div><span>画布</span><strong>24 × 24 px</strong></div>
-            <div><span>色彩</span><strong>自适应 16 色</strong></div>
+            <div><span>色彩</span><strong>自适应 {colorCount} 色</strong></div>
             <div><span>格式</span><strong>PNG</strong></div>
           </div>
           <div className="palette-block">
-            <div className="palette-title"><span>当前调色板</span><small>{result?.palette.length ?? 0} / 16</small></div>
-            <div className="palette" aria-label="当前调色板颜色">
-              {(result?.palette ?? Array.from({ length: 16 }, () => "#e8e5df")).map((color, index) => (
+            <div className="palette-title"><span>当前调色板</span><small>{result?.palette.length ?? 0} / {colorCount}</small></div>
+            <div
+              className="palette"
+              aria-label="当前调色板颜色"
+              style={{ gridTemplateColumns: `repeat(${Math.min(colorCount, 16)}, 1fr)` }}
+            >
+              {(result?.palette ?? Array.from({ length: colorCount }, () => "#e8e5df")).map((color, index) => (
                 <span key={`${color}-${index}`} style={{ background: color }} title={result ? color.toUpperCase() : undefined} />
               ))}
             </div>

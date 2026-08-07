@@ -1,5 +1,8 @@
 export const OUTPUT_SIZE = 24;
-export const MAX_COLORS = 16;
+export const DEFAULT_MAX_COLORS = 16;
+export const MAX_COLORS = 32;
+export const PALETTE_SIZES = [8, 16, 24, 32] as const;
+export type PaletteSize = (typeof PALETTE_SIZES)[number];
 
 export interface CropState {
   centerX: number;
@@ -9,7 +12,7 @@ export interface CropState {
 
 export interface PixelationOptions {
   size: 24;
-  maxColors: 16;
+  maxColors: PaletteSize;
   backgroundColor: string;
 }
 
@@ -114,7 +117,7 @@ function hex([r, g, b]: [number, number, number]): string {
 
 export function quantizePixels(
   rgba: Uint8ClampedArray,
-  maxColors = MAX_COLORS,
+  maxColors = DEFAULT_MAX_COLORS,
 ): QuantizedPixels {
   if (rgba.length % 4 !== 0) throw new Error("RGBA 数据长度无效");
 

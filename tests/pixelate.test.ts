@@ -22,7 +22,7 @@ test("keeps a solid color unchanged", () => {
   assert.deepEqual(result.data, pixels);
 });
 
-test("quantizes a gradient deterministically to at most sixteen colors", () => {
+test("quantizes a gradient deterministically to each selectable palette size", () => {
   const pixels = new Uint8ClampedArray(24 * 24 * 4);
   for (let index = 0; index < 24 * 24; index += 1) {
     const offset = index * 4;
@@ -31,15 +31,17 @@ test("quantizes a gradient deterministically to at most sixteen colors", () => {
     pixels[offset + 2] = (index * 47) % 256;
     pixels[offset + 3] = 255;
   }
-  const first = quantizePixels(pixels, 16);
-  const second = quantizePixels(pixels, 16);
-  assert.ok(first.palette.length <= 16);
-  assert.deepEqual(first.palette, second.palette);
-  assert.deepEqual(first.data, second.data);
-  const colors = new Set<string>();
-  for (let index = 0; index < first.data.length; index += 4) {
-    colors.add(`${first.data[index]},${first.data[index + 1]},${first.data[index + 2]}`);
-    assert.equal(first.data[index + 3], 255);
+  for (const size of [8, 16, 24, 32]) {
+    const first = quantizePixels(pixels, size);
+    const second = quantizePixels(pixels, size);
+    assert.ok(first.palette.length <= size);
+    assert.deepEqual(first.palette, second.palette);
+    assert.deepEqual(first.data, second.data);
+    const colors = new Set<string>();
+    for (let index = 0; index < first.data.length; index += 4) {
+      colors.add(`${first.data[index]},${first.data[index + 1]},${first.data[index + 2]}`);
+      assert.equal(first.data[index + 3], 255);
+    }
+    assert.ok(colors.size <= size);
   }
-  assert.ok(colors.size <= 16);
 });

@@ -78,13 +78,14 @@ button:focus-visible, input:focus-visible, canvas:focus-visible {
 .corner-b { top: 12px; right: 12px; border-width: 4px 4px 0 0; }
 .corner-c { bottom: 12px; left: 12px; border-width: 0 0 4px 4px; }
 .corner-d { bottom: 12px; right: 12px; border-width: 0 4px 4px 0; }
-.controls-row { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 21px 0 4px; }
-.zoom-control, .color-control { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 800; }
+.controls-row { display: grid; grid-template-columns: 1fr auto auto; gap: 24px; align-items: center; padding: 21px 0 4px; }
+.zoom-control, .color-control, .palette-control { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 800; }
 .zoom-control input { min-width: 120px; flex: 1; accent-color: var(--purple); }
 .zoom-control output { width: 48px; font: 700 12px ui-monospace, monospace; color: var(--muted); }
 .color-input-wrap { width: 30px; height: 30px; border: 2px solid var(--ink); overflow: hidden; }
 .color-input-wrap input { width: 46px; height: 46px; transform: translate(-8px,-8px); opacity: 0; cursor: pointer; }
 .color-control code { font-size: 11px; color: var(--muted); }
+.palette-control select { min-height: 34px; padding: 4px 28px 4px 9px; border: 2px solid var(--ink); background: var(--panel); color: var(--ink); font-weight: 800; cursor: pointer; }
 .editor-help { margin: 13px 0 0; text-align: center; color: var(--muted); font-size: 12px; }
 .error-message { margin-top: 16px; padding: 12px 14px; background: #ffe6df; border-left: 4px solid var(--orange); font-weight: 700; font-size: 13px; }
 
@@ -108,7 +109,7 @@ button:focus-visible, input:focus-visible, canvas:focus-visible {
 .palette-block { margin-top: 22px; }
 .palette-title { display: flex; justify-content: space-between; margin-bottom: 9px; font-size: 12px; font-weight: 800; }
 .palette-title small { color: var(--muted); font: 700 11px ui-monospace, monospace; }
-.palette { display: grid; grid-template-columns: repeat(16, 1fr); height: 30px; border: 1px solid var(--ink); }
+.palette { display: grid; grid-template-columns: repeat(16, 1fr); grid-auto-rows: 28px; min-height: 30px; border: 1px solid var(--ink); }
 .palette span { min-width: 0; }
 .download-button { margin-top: 20px; border: 0; padding: 16px 18px; display: flex; justify-content: space-between; background: var(--orange); color: white; font-weight: 900; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); }
 .download-button b { font-size: 20px; line-height: 1; }
@@ -140,7 +141,7 @@ footer { padding: 32px 0 40px; display: flex; justify-content: space-between; co
   .result-stage { min-height: 340px; padding: 18px; }
   .empty-result { width: 170px; height: 170px; }
   .result-meta strong { font-size: 10px; }
-  .palette { grid-template-columns: repeat(8, 1fr); height: 44px; }
+  .palette { grid-template-columns: repeat(8, 1fr); }
   footer { flex-direction: column; gap: 5px; }
 }
 
