@@ -304,7 +304,17 @@ export function PixelStudio() {
           <p className="eyebrow">PIXEL ART MAKER · 24 × 24</p>
           <h1>把一张照片，<br />压进 <em>576</em> 个像素。</h1>
         </div>
-        <p className="hero-copy">裁好构图，挑一个底色和颜色数量。我们会从你的图片中提取最多 {colorCount} 种代表色，生成干净、可下载的 24×24 像素画。</p>
+        <div className="hero-side">
+          <div className="mascot-card">
+            <img className="mascot-stars" src="/angelina/stars.png" alt="" aria-hidden="true" />
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcSet="/angelina/camera.png" />
+              <img className="mascot" src="/angelina/camera.gif" alt="Angelina 拿着相机记录灵感" />
+            </picture>
+            <span>把灵感拍成像素 ✦</span>
+          </div>
+          <p className="hero-copy">裁好构图，挑一个底色和颜色数量。我们会从你的图片中提取最多 {colorCount} 种代表色，生成干净、可下载的 24×24 像素画。</p>
+        </div>
       </section>
 
       <section className="studio" aria-label="像素画生成工作台">
@@ -324,6 +334,7 @@ export function PixelStudio() {
               onDragLeave={() => setDraggingOver(false)}
               onDrop={onDrop}
             >
+              <img className="dropzone-stars" src="/angelina/stars.png" alt="" aria-hidden="true" />
               <div className="upload-art" aria-hidden="true"><span>24</span><b>×</b><span>24</span></div>
               <h3>从一张图片开始</h3>
               <p>拖放、粘贴，或者从设备中选择图片</p>
@@ -427,8 +438,11 @@ export function PixelStudio() {
       </section>
 
       <footer>
-        <p>本地处理 · 不上传 · 不留存</p>
-        <p>576 pixels, one tiny story.</p>
+        <div>
+          <p>本地处理 · 不上传 · 不留存</p>
+          <p>576 pixels, one tiny story.</p>
+        </div>
+        <img src="/angelina/paper-plane.png" alt="Angelina 乘纸飞机出发" />
       </footer>
     </main>
   );
