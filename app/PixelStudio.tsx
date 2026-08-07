@@ -292,9 +292,9 @@ export function PixelStudio() {
   return (
     <main className="site-shell">
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="像素工坊首页">
-          <span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span>
-          <span>像素工坊</span>
+        <a className="brand" href="#top" aria-label="巡展像素小工具首页">
+          <img className="brand-logo" src="/tour-pixel-logo.png" alt="" aria-hidden="true" />
+          <span>巡展像素小工具</span>
         </a>
         <div className="privacy-pill"><span aria-hidden="true">●</span> 图片只在你的浏览器中处理</div>
       </header>

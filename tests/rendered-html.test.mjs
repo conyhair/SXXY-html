@@ -17,7 +17,8 @@ test("renders the pixel studio shell", async () => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /<title>像素工坊｜24×24 像素画生成器<\/title>/);
+  assert.match(html, /<title>巡展像素小工具｜24×24 像素画生成器<\/title>/);
+  assert.match(html, /巡展像素小工具首页/);
   assert.match(html, /把一张照片/);
   assert.match(html, /图片只在你的浏览器中处理/);
   assert.match(html, /下载 24×24 PNG/);
