@@ -302,7 +302,7 @@ export function PixelStudio() {
       <section className="hero" id="top">
         <div>
           <p className="eyebrow">一键生成巡展像素画</p>
-          <h1>在这个<em>酸橙味</em>的夏天<br />留下博士们的欢乐记忆！</h1>
+          <h1>在<em>酸橙味</em>的夏天，<br />把博士们的欢笑<br />定格成一格格<em>像素记忆</em>！</h1>
         </div>
         <div className="hero-side">
           <div className="mascot-card">
