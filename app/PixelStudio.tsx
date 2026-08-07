@@ -301,8 +301,8 @@ export function PixelStudio() {
 
       <section className="hero" id="top">
         <div>
-          <p className="eyebrow">PIXEL ART MAKER · 24 × 24</p>
-          <h1>把一张照片，<br />压进 <em>576</em> 个像素。</h1>
+          <p className="eyebrow">一键生成巡展像素画</p>
+          <h1>在这个<em>酸橙味</em>的夏天<br />留下博士们的欢乐记忆！</h1>
         </div>
         <div className="hero-side">
           <div className="mascot-card">
@@ -438,9 +438,16 @@ export function PixelStudio() {
       </section>
 
       <footer>
-        <div>
-          <p>本地处理 · 不上传 · 不留存</p>
-          <p>576 pixels, one tiny story.</p>
+        <div className="footer-copy">
+          <div className="footer-tagline">
+            <p>本地处理 · 不上传 · 不留存</p>
+            <p>576 pixels, one tiny story.</p>
+            <a href="https://github.com/conyhair/SXXY-html.git" target="_blank" rel="noreferrer">GitHub · conyhair/SXXY-html ↗</a>
+          </div>
+          <div className="footer-legal">
+            <p><strong>本网站是由《明日方舟》游戏爱好者制作。网站所涉及的公司名称、商标、产品等均为其各自所有者的资产，仅供识别。</strong></p>
+            <p><strong>网站内使用的图片版权属于上海鹰角网络科技有限公司及其关联公司。</strong></p>
+          </div>
         </div>
         <img src="/angelina/paper-plane.png" alt="Angelina 乘纸飞机出发" />
       </footer>

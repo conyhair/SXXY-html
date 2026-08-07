@@ -19,7 +19,10 @@ test("renders the pixel studio shell", async () => {
   const html = await response.text();
   assert.match(html, /<title>巡展像素小工具｜24×24 像素画生成器<\/title>/);
   assert.match(html, /巡展像素小工具首页/);
-  assert.match(html, /把一张照片/);
+  assert.match(html, /在这个.*酸橙味.*的夏天/);
+  assert.match(html, /一键生成巡展像素画/);
+  assert.match(html, /图片版权属于上海鹰角网络科技有限公司/);
+  assert.match(html, /github\.com\/conyhair\/SXXY-html\.git/);
   assert.match(html, /图片只在你的浏览器中处理/);
   assert.match(html, /下载 24×24 PNG/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/);
