@@ -3,6 +3,25 @@ export const DEFAULT_MAX_COLORS = 16;
 export const MAX_COLORS = 32;
 export const PALETTE_SIZES = [8, 16, 24, 32] as const;
 export type PaletteSize = (typeof PALETTE_SIZES)[number];
+export const OFFICIAL_PALETTE = [
+  "#222222", "#B4B4B4", "#EAE7DF", "#FFFFFF",
+  "#D32F36", "#9C0A00", "#D60C4A", "#E6968D",
+  "#FE9875", "#F7D0C0", "#FCEFEA", "#FBF6E8",
+  "#DCD2C8", "#E2CEAB", "#D56322", "#D48C42",
+  "#F29900", "#F9C933", "#FCE499", "#B3B47A",
+  "#C2DA72", "#6C6E00", "#B19155", "#A98F74",
+  "#AA9228", "#3F2B12", "#74491F", "#534658",
+  "#2A2446", "#394599", "#5A459D", "#BAA3D7",
+  "#B6BCDF", "#A9ACBE", "#63ABB9", "#B4D2DC",
+  "#91D8E6", "#47AEA0", "#B6D3C8", "#273864",
+] as const;
+
+export function officialPalettePosition(color: string): { row: number; column: number } | null {
+  const index = OFFICIAL_PALETTE.findIndex(
+    (officialColor) => officialColor.toUpperCase() === color.toUpperCase(),
+  );
+  return index < 0 ? null : { row: Math.floor(index / 4) + 1, column: (index % 4) + 1 };
+}
 
 export interface CropState {
   centerX: number;
@@ -14,6 +33,7 @@ export interface PixelationOptions {
   size: 24;
   maxColors: PaletteSize;
   backgroundColor: string;
+  fixedPalette?: readonly string[];
 }
 
 export interface PixelationResult {
@@ -113,6 +133,53 @@ function labDistance(left: LabColor, right: LabColor): number {
 
 function hex([r, g, b]: [number, number, number]): string {
   return `#${[r, g, b].map((value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function rgbFromHex(color: string): [number, number, number] {
+  const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(color);
+  if (!match) throw new Error(`无效的调色板颜色：${color}`);
+  return [Number.parseInt(match[1], 16), Number.parseInt(match[2], 16), Number.parseInt(match[3], 16)];
+}
+
+export function quantizeToFixedPalette(
+  rgba: Uint8ClampedArray,
+  palette: readonly string[],
+): QuantizedPixels {
+  if (rgba.length % 4 !== 0) throw new Error("RGBA 数据长度无效");
+  if (palette.length === 0) throw new Error("固定调色板不能为空");
+
+  const colors = palette.map((color) => {
+    const rgb = rgbFromHex(color);
+    return { rgb, lab: rgbToLab(...rgb), hex: hex(rgb).toUpperCase() };
+  });
+  const counts = new Array(colors.length).fill(0);
+  const output = new Uint8ClampedArray(rgba.length);
+
+  for (let offset = 0; offset < rgba.length; offset += 4) {
+    const source = rgbToLab(rgba[offset], rgba[offset + 1], rgba[offset + 2]);
+    let nearest = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (let index = 0; index < colors.length; index += 1) {
+      const distance = labDistance(source, colors[index].lab);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearest = index;
+      }
+    }
+    const [r, g, b] = colors[nearest].rgb;
+    output[offset] = r;
+    output[offset + 1] = g;
+    output[offset + 2] = b;
+    output[offset + 3] = 255;
+    counts[nearest] += 1;
+  }
+
+  const usedPalette = colors
+    .map((color, index) => ({ color: color.hex, count: counts[index], index }))
+    .filter(({ count }) => count > 0)
+    .sort((left, right) => right.count - left.count || left.index - right.index)
+    .map(({ color }) => color);
+  return { data: output, palette: usedPalette };
 }
 
 export function quantizePixels(
@@ -256,7 +323,9 @@ export function renderPixelation(
   outputContext.imageSmoothingQuality = "high";
   outputContext.drawImage(middle, 0, 0, options.size, options.size);
   const raw = outputContext.getImageData(0, 0, options.size, options.size);
-  const quantized = quantizePixels(raw.data, options.maxColors);
+  const quantized = options.fixedPalette
+    ? quantizeToFixedPalette(raw.data, options.fixedPalette)
+    : quantizePixels(raw.data, options.maxColors);
   const imageDataArray = new Uint8ClampedArray(new ArrayBuffer(quantized.data.byteLength));
   imageDataArray.set(quantized.data);
   return {

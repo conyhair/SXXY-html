@@ -16,11 +16,13 @@ import {
   type PaletteSize,
   type PixelationResult,
   DEFAULT_MAX_COLORS,
+  OFFICIAL_PALETTE,
   OUTPUT_SIZE,
   PALETTE_SIZES,
   clampCrop,
   cropSize,
   initialCrop,
+  officialPalettePosition,
   renderPixelation,
   sourceRect,
 } from "./pixelate";
@@ -46,6 +48,14 @@ interface DragState {
 }
 
 interface PinchState { distance: number; zoom: number }
+type PaletteChoice = PaletteSize | "official";
+interface PixelInspection {
+  row: number;
+  column: number;
+  color: string;
+  pixelX: number;
+  pixelY: number;
+}
 
 function safeName(filename: string): string {
   const withoutExtension = filename.replace(/\.[^.]+$/, "").trim();
@@ -56,10 +66,11 @@ export function PixelStudio() {
   const [source, setSource] = useState<SourceImage | null>(null);
   const [crop, setCrop] = useState<CropState>({ centerX: 0, centerY: 0, zoom: 1 });
   const [background, setBackground] = useState("#ffffff");
-  const [colorCount, setColorCount] = useState<PaletteSize>(DEFAULT_MAX_COLORS);
+  const [colorCount, setColorCount] = useState<PaletteChoice>(DEFAULT_MAX_COLORS);
   const [result, setResult] = useState<PixelationResult | null>(null);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("等待图片");
+  const [pixelInspection, setPixelInspection] = useState<PixelInspection | null>(null);
   const [draggingOver, setDraggingOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<HTMLCanvasElement>(null);
@@ -137,8 +148,9 @@ export function PixelStudio() {
       try {
         const nextResult = renderPixelation(source.element, source.width, source.height, crop, {
           size: OUTPUT_SIZE,
-          maxColors: colorCount,
+          maxColors: colorCount === "official" ? DEFAULT_MAX_COLORS : colorCount,
           backgroundColor: background,
+          fixedPalette: colorCount === "official" ? OFFICIAL_PALETTE : undefined,
         });
         setResult(nextResult);
         setStatus("已生成 24×24 像素画");
@@ -181,6 +193,37 @@ export function PixelStudio() {
     const context = canvas.getContext("2d");
     context?.putImageData(result.imageData, 0, 0);
   }, [result]);
+
+  useEffect(() => {
+    setPixelInspection(null);
+  }, [colorCount, result]);
+
+  const inspectPreviewPixel = (event: PointerEvent<HTMLCanvasElement>) => {
+    if (colorCount !== "official" || !result) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const pixelX = Math.max(0, Math.min(
+      OUTPUT_SIZE - 1,
+      Math.floor(((event.clientX - rect.left) / rect.width) * OUTPUT_SIZE),
+    ));
+    const pixelY = Math.max(0, Math.min(
+      OUTPUT_SIZE - 1,
+      Math.floor(((event.clientY - rect.top) / rect.height) * OUTPUT_SIZE),
+    ));
+    const offset = (pixelY * OUTPUT_SIZE + pixelX) * 4;
+    const color = `#${[
+      result.imageData.data[offset],
+      result.imageData.data[offset + 1],
+      result.imageData.data[offset + 2],
+    ].map((value) => value.toString(16).padStart(2, "0")).join("")}`.toUpperCase();
+    const position = officialPalettePosition(color);
+    if (position) {
+      setPixelInspection((current) => (
+        current?.pixelX === pixelX && current.pixelY === pixelY
+          ? current
+          : { ...position, color, pixelX, pixelY }
+      ));
+    }
+  };
 
   const updateZoom = (zoom: number) => {
     if (!source) return;
@@ -313,7 +356,7 @@ export function PixelStudio() {
             </picture>
             <span>把灵感拍成像素 ✦</span>
           </div>
-          <p className="hero-copy">裁好构图，挑一个底色和颜色数量。我们会从你的图片中提取最多 {colorCount} 种代表色，生成干净、可下载的 24×24 像素画。</p>
+          <p className="hero-copy">裁好构图，挑一个底色和配色方式。可使用自适应色彩，也可切换到官方配色，让每个像素严格取自指定色卡。</p>
         </div>
       </section>
 
@@ -384,13 +427,18 @@ export function PixelStudio() {
                   <code>{background.toUpperCase()}</code>
                 </label>
                 <label className="palette-control">
-                  <span>颜色数</span>
+                  <span>配色</span>
                   <select
                     value={colorCount}
                     aria-label="选择像素画最大颜色数"
-                    onChange={(event) => setColorCount(Number(event.target.value) as PaletteSize)}
+                    onChange={(event) => setColorCount(
+                      event.target.value === "official"
+                        ? "official"
+                        : Number(event.target.value) as PaletteSize,
+                    )}
                   >
                     {PALETTE_SIZES.map((size) => <option key={size} value={size}>{size} 色</option>)}
+                    <option value="official">官方配色</option>
                   </select>
                 </label>
               </div>
@@ -408,27 +456,48 @@ export function PixelStudio() {
           </div>
           <div className={`result-stage ${result ? "has-result" : ""}`}>
             {result ? (
-              <canvas ref={previewRef} width={OUTPUT_SIZE} height={OUTPUT_SIZE} aria-label="生成的 24×24 像素画预览" />
+              <canvas
+                ref={previewRef}
+                width={OUTPUT_SIZE}
+                height={OUTPUT_SIZE}
+                className={colorCount === "official" ? "is-inspectable" : undefined}
+                aria-label={colorCount === "official" ? "生成的 24×24 像素画预览，可指向像素查看官方色卡编号" : "生成的 24×24 像素画预览"}
+                onPointerMove={inspectPreviewPixel}
+                onPointerDown={inspectPreviewPixel}
+                onPointerLeave={(event) => {
+                  if (event.pointerType === "mouse") setPixelInspection(null);
+                }}
+              />
             ) : (
               <div className="empty-result" aria-hidden="true"><span /><span /><span /><span /><b>24</b></div>
+            )}
+            {colorCount === "official" && pixelInspection && (
+              <div className="pixel-inspector" aria-live="polite">
+                <span className="pixel-inspector-swatch" style={{ background: pixelInspection.color }} />
+                <span><small>官方色卡 · 行：列</small><strong>{pixelInspection.row}：{pixelInspection.column}</strong></span>
+                <code>{pixelInspection.color}</code>
+              </div>
             )}
           </div>
           <div className="result-meta">
             <div><span>画布</span><strong>24 × 24 px</strong></div>
-            <div><span>色彩</span><strong>自适应 {colorCount} 色</strong></div>
+            <div><span>色彩</span><strong>{colorCount === "official" ? "官方配色" : `自适应 ${colorCount} 色`}</strong></div>
             <div><span>格式</span><strong>PNG</strong></div>
           </div>
           <div className="palette-block">
-            <div className="palette-title"><span>当前调色板</span><small>{result?.palette.length ?? 0} / {colorCount}</small></div>
+            <div className="palette-title"><span>当前调色板</span><small>{result?.palette.length ?? 0} / {colorCount === "official" ? OFFICIAL_PALETTE.length : colorCount}</small></div>
             <div
               className="palette"
               aria-label="当前调色板颜色"
-              style={{ gridTemplateColumns: `repeat(${Math.min(colorCount, 16)}, 1fr)` }}
+              style={{ gridTemplateColumns: `repeat(${Math.min(colorCount === "official" ? OFFICIAL_PALETTE.length : colorCount, 16)}, 1fr)` }}
             >
-              {(result?.palette ?? Array.from({ length: colorCount }, () => "#e8e5df")).map((color, index) => (
+              {(result?.palette ?? Array.from({ length: colorCount === "official" ? OFFICIAL_PALETTE.length : colorCount }, () => "#e8e5df")).map((color, index) => (
                 <span key={`${color}-${index}`} style={{ background: color }} title={result ? color.toUpperCase() : undefined} />
               ))}
             </div>
+            {colorCount === "official" && (
+              <p className="palette-hint">移到预览像素上查看官方色卡编号（行：列）；触摸设备可点按查看。</p>
+            )}
           </div>
           <button className="download-button" type="button" disabled={!result} onClick={download}>
             <span>下载 24×24 PNG</span><b aria-hidden="true">↓</b>
