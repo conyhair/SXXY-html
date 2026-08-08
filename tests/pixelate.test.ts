@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { clampCrop, initialCrop, quantizePixels, sourceRect } from "../app/pixelate.ts";
+import {
+  OFFICIAL_PALETTE,
+  clampCrop,
+  initialCrop,
+  officialPalettePosition,
+  quantizePixels,
+  quantizeToFixedPalette,
+  sourceRect,
+} from "../app/pixelate.ts";
 
 test("centers a square crop inside wide and tall images", () => {
   assert.deepEqual(sourceRect(1200, 800, initialCrop(1200, 800)), { x: 200, y: 0, size: 800 });
@@ -44,4 +52,33 @@ test("quantizes a gradient deterministically to each selectable palette size", (
     }
     assert.ok(colors.size <= size);
   }
+});
+
+test("maps every pixel exclusively to the official palette", () => {
+  const pixels = new Uint8ClampedArray([
+    20, 22, 24, 120,
+    250, 151, 113, 255,
+    78, 173, 163, 255,
+    40, 55, 98, 255,
+  ]);
+  const first = quantizeToFixedPalette(pixels, OFFICIAL_PALETTE);
+  const second = quantizeToFixedPalette(pixels, OFFICIAL_PALETTE);
+  const allowed = new Set(OFFICIAL_PALETTE.map((color) => color.toUpperCase()));
+  assert.deepEqual(first, second);
+  assert.ok(first.palette.every((color) => allowed.has(color.toUpperCase())));
+  for (let index = 0; index < first.data.length; index += 4) {
+    const color = `#${[first.data[index], first.data[index + 1], first.data[index + 2]]
+      .map((value) => value.toString(16).padStart(2, "0"))
+      .join("")}`.toUpperCase();
+    assert.ok(allowed.has(color));
+    assert.equal(first.data[index + 3], 255);
+  }
+});
+
+test("numbers the official palette as ten rows by four columns", () => {
+  assert.deepEqual(officialPalettePosition(OFFICIAL_PALETTE[0]), { row: 1, column: 1 });
+  assert.deepEqual(officialPalettePosition(OFFICIAL_PALETTE[23]), { row: 6, column: 4 });
+  assert.deepEqual(officialPalettePosition(OFFICIAL_PALETTE[24]), { row: 7, column: 1 });
+  assert.deepEqual(officialPalettePosition(OFFICIAL_PALETTE[39]), { row: 10, column: 4 });
+  assert.equal(officialPalettePosition("#000000"), null);
 });
