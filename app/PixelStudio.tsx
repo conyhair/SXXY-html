@@ -70,6 +70,7 @@ export function PixelStudio() {
   const [result, setResult] = useState<PixelationResult | null>(null);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("等待图片");
+  const [showGrid, setShowGrid] = useState(false);
   const [pixelInspection, setPixelInspection] = useState<PixelInspection | null>(null);
   const [draggingOver, setDraggingOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -452,22 +453,37 @@ export function PixelStudio() {
         <article className="panel result-panel">
           <div className="panel-heading">
             <div><span className="step">02</span><h2>像素结果</h2></div>
-            <span className={`status-dot ${result ? "ready" : ""}`}>{status}</span>
+            <div className="result-heading-actions">
+              <button
+                className="grid-toggle"
+                type="button"
+                disabled={!result}
+                aria-pressed={showGrid}
+                onClick={() => setShowGrid((current) => !current)}
+              >
+                <span aria-hidden="true"><i /></span>
+                辅助线
+              </button>
+              <span className={`status-dot ${result ? "ready" : ""}`}>{status}</span>
+            </div>
           </div>
           <div className={`result-stage ${result ? "has-result" : ""}`}>
             {result ? (
-              <canvas
-                ref={previewRef}
-                width={OUTPUT_SIZE}
-                height={OUTPUT_SIZE}
-                className={colorCount === "official" ? "is-inspectable" : undefined}
-                aria-label={colorCount === "official" ? "生成的 24×24 像素画预览，可指向像素查看官方色卡编号" : "生成的 24×24 像素画预览"}
-                onPointerMove={inspectPreviewPixel}
-                onPointerDown={inspectPreviewPixel}
-                onPointerLeave={(event) => {
-                  if (event.pointerType === "mouse") setPixelInspection(null);
-                }}
-              />
+              <div className="preview-canvas-wrap">
+                <canvas
+                  ref={previewRef}
+                  width={OUTPUT_SIZE}
+                  height={OUTPUT_SIZE}
+                  className={colorCount === "official" ? "is-inspectable" : undefined}
+                  aria-label={colorCount === "official" ? "生成的 24×24 像素画预览，可指向像素查看官方色卡编号" : "生成的 24×24 像素画预览"}
+                  onPointerMove={inspectPreviewPixel}
+                  onPointerDown={inspectPreviewPixel}
+                  onPointerLeave={(event) => {
+                    if (event.pointerType === "mouse") setPixelInspection(null);
+                  }}
+                />
+                {showGrid && <span className="pixel-grid-overlay" aria-hidden="true" />}
+              </div>
             ) : (
               <div className="empty-result" aria-hidden="true"><span /><span /><span /><span /><b>24</b></div>
             )}
