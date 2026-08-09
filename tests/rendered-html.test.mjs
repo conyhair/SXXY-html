@@ -27,6 +27,7 @@ test("renders the pixel studio shell", async () => {
   assert.match(html, /github\.com\/conyhair\/SXXY-html\.git/);
   assert.match(html, /图片只在你的浏览器中处理/);
   assert.match(html, /下载 24×24 PNG/);
+  assert.match(html, /辅助线/);
   assert.match(html, /官方配色/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/);
 });
