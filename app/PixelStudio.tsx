@@ -7,8 +7,7 @@ import {
   type PointerEvent,
   type WheelEvent,
   useCallback,
-  useEffect,
-  useRef,
+  useEffect,$1  useMemo,$1  useRef,
   useState,
 } from "react";
 import {
@@ -21,8 +20,7 @@ import {
   PALETTE_SIZES,
   clampCrop,
   cropSize,
-  initialCrop,
-  officialPalettePosition,
+  initialCrop,$1  matchingPixelIndexes,$1  officialPalettePosition,
   renderPixelation,
   sourceRect,
 } from "./pixelate";
@@ -198,6 +196,15 @@ export function PixelStudio() {
   useEffect(() => {
     setPixelInspection(null);
   }, [colorCount, result]);
+
+  const matchingPixels = useMemo(() => {
+    if (colorCount !== "official" || !result || !pixelInspection) return [];
+    return matchingPixelIndexes(
+      result.imageData,
+      pixelInspection.pixelX,
+      pixelInspection.pixelY,
+    );
+  }, [colorCount, pixelInspection, result]);
 
   const inspectPreviewPixel = (event: PointerEvent<HTMLCanvasElement>) => {
     if (colorCount !== "official" || !result) return;
@@ -467,6 +474,17 @@ export function PixelStudio() {
               <span className={`status-dot ${result ? "ready" : ""}`}>{status}</span>
             </div>
           </div>
+          {colorCount === "official" && (
+            <div className="pixel-inspector-row" aria-live="polite">
+              {pixelInspection && (
+                <div className="pixel-inspector">
+                  <span className="pixel-inspector-swatch" style={{ background: pixelInspection.color }} />
+                  <span><small>官方色卡 · 行：列 · 同色 {matchingPixels.length} 格</small><strong>{pixelInspection.row}：{pixelInspection.column}</strong></span>
+                  <code>{pixelInspection.color}</code>
+                </div>
+              )}
+            </div>
+          )}
           <div className={`result-stage ${result ? "has-result" : ""}`}>
             {result ? (
               <div className="preview-canvas-wrap">
@@ -483,16 +501,22 @@ export function PixelStudio() {
                   }}
                 />
                 {showGrid && <span className="pixel-grid-overlay" aria-hidden="true" />}
+                {matchingPixels.length > 0 && (
+                  <span className="matching-pixels-overlay" aria-hidden="true">
+                    {matchingPixels.map((index) => (
+                      <i
+                        key={index}
+                        style={{
+                          gridColumn: (index % OUTPUT_SIZE) + 1,
+                          gridRow: Math.floor(index / OUTPUT_SIZE) + 1,
+                        }}
+                      />
+                    ))}
+                  </span>
+                )}
               </div>
             ) : (
               <div className="empty-result" aria-hidden="true"><span /><span /><span /><span /><b>24</b></div>
-            )}
-            {colorCount === "official" && pixelInspection && (
-              <div className="pixel-inspector" aria-live="polite">
-                <span className="pixel-inspector-swatch" style={{ background: pixelInspection.color }} />
-                <span><small>官方色卡 · 行：列</small><strong>{pixelInspection.row}：{pixelInspection.column}</strong></span>
-                <code>{pixelInspection.color}</code>
-              </div>
             )}
           </div>
           <div className="result-meta">
@@ -512,7 +536,7 @@ export function PixelStudio() {
               ))}
             </div>
             {colorCount === "official" && (
-              <p className="palette-hint">移到预览像素上查看官方色卡编号（行：列）；触摸设备可点按查看。</p>
+              <p className="palette-hint">移到预览像素上查看官方色卡编号（行：列），同色像素会一起框选；触摸设备可点按查看。</p>
             )}
           </div>
           <button className="download-button" type="button" disabled={!result} onClick={download}>
