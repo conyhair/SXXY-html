@@ -3,7 +3,9 @@ import test from "node:test";
 import {
   OFFICIAL_PALETTE,
   clampCrop,
-  initialCrop,$1  matchingPixelIndexes,$1  officialPalettePosition,
+  initialCrop,
+  matchingPixelIndexes,
+  officialPalettePosition,
   quantizePixels,
   quantizeToFixedPalette,
   sourceRect,

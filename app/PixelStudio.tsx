@@ -7,7 +7,9 @@ import {
   type PointerEvent,
   type WheelEvent,
   useCallback,
-  useEffect,$1  useMemo,$1  useRef,
+  useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -20,7 +22,9 @@ import {
   PALETTE_SIZES,
   clampCrop,
   cropSize,
-  initialCrop,$1  matchingPixelIndexes,$1  officialPalettePosition,
+  initialCrop,
+  matchingPixelIndexes,
+  officialPalettePosition,
   renderPixelation,
   sourceRect,
 } from "./pixelate";
