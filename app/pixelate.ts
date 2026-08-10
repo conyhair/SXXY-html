@@ -23,6 +23,32 @@ export function officialPalettePosition(color: string): { row: number; column: n
   return index < 0 ? null : { row: Math.floor(index / 4) + 1, column: (index % 4) + 1 };
 }
 
+export function matchingPixelIndexes(
+  imageData: Pick<ImageData, "data" | "width" | "height">,
+  pixelX: number,
+  pixelY: number,
+): number[] {
+  if (
+    pixelX < 0
+    || pixelY < 0
+    || pixelX >= imageData.width
+    || pixelY >= imageData.height
+  ) return [];
+
+  const selectedOffset = (pixelY * imageData.width + pixelX) * 4;
+  const matches: number[] = [];
+  for (let index = 0; index < imageData.width * imageData.height; index += 1) {
+    const offset = index * 4;
+    if (
+      imageData.data[offset] === imageData.data[selectedOffset]
+      && imageData.data[offset + 1] === imageData.data[selectedOffset + 1]
+      && imageData.data[offset + 2] === imageData.data[selectedOffset + 2]
+      && imageData.data[offset + 3] === imageData.data[selectedOffset + 3]
+    ) matches.push(index);
+  }
+  return matches;
+}
+
 export interface CropState {
   centerX: number;
   centerY: number;

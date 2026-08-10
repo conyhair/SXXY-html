@@ -110,7 +110,10 @@ button:focus-visible, input:focus-visible, canvas:focus-visible {
 .result-stage canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
 .result-stage canvas.is-inspectable { cursor: crosshair; touch-action: manipulation; }
 .pixel-grid-overlay { position: absolute; inset: 0; z-index: 2; pointer-events: none; background-image: linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px); background-size: calc(100% / 24) calc(100% / 24); mix-blend-mode: difference; opacity: .68; box-shadow: inset -1px -1px 0 white; }
-.pixel-inspector { position: absolute; z-index: 3; top: 12px; right: 12px; display: flex; align-items: center; gap: 9px; padding: 8px 10px; border: 1px solid var(--ink); border-radius: 10px; background: rgba(255,250,245,.94); box-shadow: 3px 3px 0 var(--ink); pointer-events: none; }
+.matching-pixels-overlay { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-columns: repeat(24, 1fr); grid-template-rows: repeat(24, 1fr); pointer-events: none; }
+.matching-pixels-overlay i { min-width: 0; min-height: 0; box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 3px white; }
+.pixel-inspector-row { min-height: 48px; display: flex; align-items: center; justify-content: flex-end; margin: -14px 0 10px; }
+.pixel-inspector { position: relative; z-index: 4; display: flex; align-items: center; gap: 9px; padding: 8px 10px; border: 1px solid var(--ink); border-radius: 10px; background: rgba(255,250,245,.94); box-shadow: 3px 3px 0 var(--ink); pointer-events: none; }
 .pixel-inspector-swatch { width: 28px; height: 28px; border: 1px solid var(--ink); border-radius: 5px; flex: 0 0 auto; }
 .pixel-inspector > span:not(.pixel-inspector-swatch) { display: flex; flex-direction: column; gap: 1px; }
 .pixel-inspector small { color: var(--muted); font-size: 9px; font-weight: 800; }
@@ -175,6 +178,8 @@ footer img { width: 180px; height: 120px; object-fit: contain; object-position: 
   .panel { padding: 16px; box-shadow: 4px 4px 0 rgba(32,32,42,.08); }
   .panel-heading { align-items: flex-start; gap: 10px; }
   .result-heading-actions { flex-direction: column-reverse; align-items: flex-end !important; gap: 7px !important; }
+  .pixel-inspector-row { min-height: 52px; margin-top: -8px; }
+  .pixel-inspector { max-width: 100%; }
   .dropzone { min-height: 430px; padding: 24px 18px; }
   .controls-row { grid-template-columns: 1fr; gap: 16px; }
   .result-stage { min-height: 340px; padding: 18px; }

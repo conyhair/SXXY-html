@@ -3,8 +3,7 @@ import test from "node:test";
 import {
   OFFICIAL_PALETTE,
   clampCrop,
-  initialCrop,
-  officialPalettePosition,
+  initialCrop,$1  matchingPixelIndexes,$1  officialPalettePosition,
   quantizePixels,
   quantizeToFixedPalette,
   sourceRect,
@@ -81,4 +80,22 @@ test("numbers the official palette as ten rows by four columns", () => {
   assert.deepEqual(officialPalettePosition(OFFICIAL_PALETTE[24]), { row: 7, column: 1 });
   assert.deepEqual(officialPalettePosition(OFFICIAL_PALETTE[39]), { row: 10, column: 4 });
   assert.equal(officialPalettePosition("#000000"), null);
+});
+
+test("finds every pixel with the selected color", () => {
+  const imageData = {
+    width: 3,
+    height: 2,
+    data: new Uint8ClampedArray([
+      34, 34, 34, 255,
+      255, 255, 255, 255,
+      34, 34, 34, 255,
+      211, 47, 54, 255,
+      34, 34, 34, 255,
+      255, 255, 255, 255,
+    ]),
+  };
+  assert.deepEqual(matchingPixelIndexes(imageData, 0, 0), [0, 2, 4]);
+  assert.deepEqual(matchingPixelIndexes(imageData, 2, 1), [1, 5]);
+  assert.deepEqual(matchingPixelIndexes(imageData, 3, 0), []);
 });
